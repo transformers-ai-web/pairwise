@@ -1,0 +1,38 @@
+export type Problem = { id: string; title: string; difficulty: 'Easy' | 'Medium' | 'Hard'; topic: string; minutes: number; note: string; url: string; platform: 'LeetCode' | 'GFG'; source: string };
+const lc = 'https://leetcode.com/studyplan/top-interview-150/';
+function problem(id: string, title: string, difficulty: Problem['difficulty'], topic: string, minutes: number, note: string): Problem { return { id, title, difficulty, topic, minutes, note, url: `https://leetcode.com/problems/${id}/`, platform: 'LeetCode', source: lc }; }
+export const problems: Problem[] = [
+  problem('two-sum', 'Two Sum', 'Easy', 'Arrays & hashing', 15, 'A small start. A useful pattern.'),
+  problem('group-anagrams', 'Group Anagrams', 'Medium', 'Arrays & hashing', 25, 'Find the common thread in a collection of strings.'),
+  problem('valid-palindrome', 'Valid Palindrome', 'Easy', 'Two pointers', 15, 'Work your way in from both ends.'),
+  problem('3sum', '3Sum', 'Medium', 'Two pointers', 30, 'Build on two pointers, with one extra number.'),
+  problem('best-time-to-buy-and-sell-stock', 'Best Time to Buy and Sell Stock', 'Easy', 'Arrays', 15, 'Keep track of what matters as you go.'),
+  problem('longest-substring-without-repeating-characters', 'Longest Substring Without Repeating Characters', 'Medium', 'Sliding window', 30, 'Know when to grow your window, and when to shrink it.'),
+  problem('valid-parentheses', 'Valid Parentheses', 'Easy', 'Stacks', 15, 'Put the last thing first.'),
+  problem('evaluate-reverse-polish-notation', 'Evaluate Reverse Polish Notation', 'Medium', 'Stacks', 25, 'Turn a sequence of tokens into a result.'),
+  problem('search-insert-position', 'Search Insert Position', 'Easy', 'Binary search', 15, 'Make each comparison count.'),
+  problem('search-in-rotated-sorted-array', 'Search in Rotated Sorted Array', 'Medium', 'Binary search', 30, 'Find the order inside a rotated array.'),
+  problem('merge-two-sorted-lists', 'Merge Two Sorted Lists', 'Easy', 'Linked lists', 20, 'Connect two ordered paths.'),
+  problem('linked-list-cycle', 'Linked List Cycle', 'Easy', 'Linked lists', 20, 'Two speeds can reveal a loop.'),
+  problem('maximum-depth-of-binary-tree', 'Maximum Depth of Binary Tree', 'Easy', 'Trees', 15, 'Explore one branch at a time.'),
+  problem('binary-tree-level-order-traversal', 'Binary Tree Level Order Traversal', 'Medium', 'Trees', 25, 'Take a tree one level at a time.'),
+  problem('invert-binary-tree', 'Invert Binary Tree', 'Easy', 'Trees', 15, 'A little recursion changes your perspective.'),
+  problem('validate-binary-search-tree', 'Validate Binary Search Tree', 'Medium', 'Trees', 30, 'Keep the whole path in mind.'),
+  problem('number-of-islands', 'Number of Islands', 'Medium', 'Graphs', 25, 'Discover the connected pieces of a grid.'),
+  problem('course-schedule', 'Course Schedule', 'Medium', 'Graphs', 30, 'Make sense of dependencies.'),
+  problem('merge-intervals', 'Merge Intervals', 'Medium', 'Intervals', 25, 'Bring overlapping ranges together.'),
+  problem('insert-interval', 'Insert Interval', 'Medium', 'Intervals', 25, 'Make room for a new range.'),
+  problem('kth-largest-element-in-an-array', 'Kth Largest Element in an Array', 'Medium', 'Heaps', 25, 'You may not need to sort everything.'),
+  problem('find-median-from-data-stream', 'Find Median from Data Stream', 'Hard', 'Heaps', 40, 'Keep your data balanced as it arrives.'),
+  problem('climbing-stairs', 'Climbing Stairs', 'Easy', 'Dynamic programming', 15, 'Let smaller answers build the next one.'),
+  problem('house-robber', 'House Robber', 'Medium', 'Dynamic programming', 25, 'Weigh taking a step against skipping it.'),
+  problem('coin-change', 'Coin Change', 'Medium', 'Dynamic programming', 30, 'Build a bigger answer from smaller amounts.'),
+  problem('longest-increasing-subsequence', 'Longest Increasing Subsequence', 'Medium', 'Dynamic programming', 35, 'Look for progress without requiring adjacent steps.'),
+  problem('letter-combinations-of-a-phone-number', 'Letter Combinations of a Phone Number', 'Medium', 'Backtracking', 25, 'Explore a choice, then try the next.'),
+  problem('combination-sum', 'Combination Sum', 'Medium', 'Backtracking', 30, 'Build combinations one decision at a time.'),
+  problem('lru-cache', 'LRU Cache', 'Medium', 'Data structure design', 35, 'Design for quick access and quick updates.'),
+  problem('implement-trie-prefix-tree', 'Implement Trie (Prefix Tree)', 'Medium', 'Data structure design', 30, 'Give shared prefixes a home.'),
+  { id: 'smallest-distinct-window', title: 'Smallest Distinct Window', difficulty: 'Medium', topic: 'Sliding window', minutes: 30, note: 'Bring every distinct character into one window.', url: 'https://www.geeksforgeeks.org/dsa/smallest-window-contains-characters-string/', platform: 'GFG', source: 'https://www.geeksforgeeks.org/interview-experiences/atlassian-interview-experience-for-internship-on-campus/' },
+  { id: 'weighted-job-scheduling', title: 'Weighted Job Scheduling', difficulty: 'Hard', topic: 'Dynamic programming', minutes: 40, note: 'Find the most valuable set of compatible jobs.', url: 'https://www.geeksforgeeks.org/dsa/weighted-job-scheduling/', platform: 'GFG', source: 'https://www.geeksforgeeks.org/interview-experiences/atlassian-interview-experience-for-full-time-software-engineer-bangalore-on-campus/' },
+];
+export const pairs = Array.from({ length: problems.length / 2 }, (_, i) => problems.slice(i * 2, i * 2 + 2));

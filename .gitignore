@@ -1,0 +1,8 @@
+node_modules/
+.npm-cache/
+.next/
+out/
+deployment.tar.gz
+.env*
+!.env.example
+*.tsbuildinfo
