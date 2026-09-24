@@ -30,7 +30,7 @@ Official setup reference: https://supabase.com/docs/guides/auth/social-login/aut
 ## Practice behavior
 
 - 32 starter problems, arranged into 16 topic-oriented pairs.
-- Next/previous skip fully solved pairs. Unfinished pairs remain available through the collection.
+- Problems are numbered continuously across pairs. Next unlocks after both current problems are saved as solved; previous returns to the adjacent pair with its saved checkmarks. Navigation stops at the first and last pairs. Completed problems have a soft green background. All pairs remain available through the collection.
 - Mark done is reversible. Solving the whole bank shows a completion screen and a revision option.
 - Collection entries allow returning to a specific pair, including solved pairs for revision.
 - Sources are linked in the collection. Most problems are general interview foundations based on the LeetCode Top Interview 150 study plan; the last two link to reported Atlassian interview experiences. The starter bank is not a verified MAANG-wide company-frequency dataset and makes no per-company frequency claims. GFG links open explanatory problem articles, which may include solutions.
