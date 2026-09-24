@@ -1,9 +1,9 @@
-node_modules/
-.npm-cache/
-.vercel/
+.git/
 .next/
+.npm-cache/
+.openai/
 out/
 deployment.tar.gz
+node_modules/
 .env*
-!.env.example
 *.tsbuildinfo

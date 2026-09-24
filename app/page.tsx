@@ -6,6 +6,7 @@ import { ArrowUpRight, ArrowRight, ArrowLeft, Check, CheckCheck, BookOpen, LogOu
 import { pairs, problems } from '@/lib/problems';
 import { emptyProgress, nextPair, normalizeProgress, type Progress } from '@/lib/progress';
 import { supabase } from '@/lib/supabase';
+import Feedback from './feedback';
 
 const localKey = 'pairwise-preview-v1';
 export default function Home() {
@@ -119,7 +120,7 @@ export default function Home() {
       </section>
       <section className="bottom-note"><span className="note-line"/><span>Less scrolling. More solving.</span><span className="note-line"/></section>
     </main>
-    <footer className="site-footer"><span>Built for your next chapter.</span><span>MAANG + ATLASSIAN <span className="footer-dot">·</span> ONE PAIR AT A TIME</span></footer>
+    <footer className="site-footer"><span>Built for your next chapter.</span><Feedback pair={progress.pair}/><span>MAANG + ATLASSIAN <span className="footer-dot">·</span> ONE PAIR AT A TIME</span></footer>
     {modal && <div className="modal-backdrop" onClick={() => setModal(null)}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title" onClick={e => e.stopPropagation()}><button ref={closeRef} className="close" aria-label="Close dialog" onClick={() => setModal(null)}><X size={20}/></button>{modal === 'login' ? <><span className="modal-icon"><Leaf size={25}/></span><h2 id="dialog-title">Make your progress<br/><em>go places.</em></h2><p>Sign in with Google to save your practice and pick up where you left off.</p><button className="google-button" onClick={signIn} disabled={busy}><span className="google-g">G</span>{busy ? 'Connecting…' : 'Continue with Google'}</button>{error && <p className="error" role="alert">{error}</p>}<button className="text-button preview-button" onClick={() => { setPreview(true); setModal(null); setError(''); }}>Continue with local preview <ArrowRight size={14}/></button><small>Preview progress stays in this browser. It is separate from your Google account.</small></> : <><div className="eyebrow">A FOCUSED START</div><h2 id="dialog-title">The collection<span className="small-period">.</span></h2><p>32 problems across core interview patterns. Foundations from LeetCode, plus practice drawn from reported Atlassian interviews. This is a starter set, not an official company question bank.</p><div className="collection-list">{pairs.map((pair, index) => <button key={index} disabled={busy || !ready} onClick={() => { if (!authenticated) { setModal('login'); return; } setRevision(pair.every(p => progress.solved.includes(p.id))); void commit({ ...progress, pair: index }); setModal(null); }}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{pair[0].topic === pair[1].topic ? pair[0].topic : `${pair[0].topic} / ${pair[1].topic}`}</strong><small>{pair.map(p => p.title).join(' · ')}</small></div><span>{pair.filter(p => progress.solved.includes(p.id)).length}/2</span></button>)}</div><div className="sources"><a href="https://leetcode.com/studyplan/top-interview-150/" target="_blank" rel="noopener noreferrer">LeetCode study plan ↗</a><a href={problems[30].source} target="_blank" rel="noopener noreferrer">Atlassian experience: windows ↗</a><a href={problems[31].source} target="_blank" rel="noopener noreferrer">Atlassian experience: scheduling ↗</a></div></>}</section></div>}
   </div>;
 }

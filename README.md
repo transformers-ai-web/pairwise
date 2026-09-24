@@ -36,7 +36,13 @@ Official setup reference: https://supabase.com/docs/guides/auth/social-login/aut
 - Sources are linked in the collection. Most problems are general interview foundations based on the LeetCode Top Interview 150 study plan; the last two link to reported Atlassian interview experiences. The starter bank is not a verified MAANG-wide company-frequency dataset and makes no per-company frequency claims. GFG links open explanatory problem articles, which may include solutions.
 - Only original short prompts, titles and links are included; problem statements are not copied.
 
-## Verification
+## Feedback
+
+The footer includes a Feedback form with a category, message (up to 1,500 characters), and the current practice pair. The selected destination for this project is GitHub Issues. After connecting the repository, set `NEXT_PUBLIC_FEEDBACK_GITHUB_REPO=owner/repository` in the deployment environment and rebuild. Keep `NEXT_PUBLIC_FEEDBACK_EMAIL` empty to use GitHub.
+
+The button opens a prefilled GitHub issue draft; the visitor reviews and submits it on GitHub. They need a GitHub account and access to the repository's Issues. For public visitors, use a public repository with Issues enabled (a separate public feedback repository can be used if the app source remains private). The form warns that submitted issues may be public. It never posts automatically or claims delivery before submission. Until the repository is configured, a clearly labelled copy option is available. The message stays in component memory while opening and closing the form, and clears on page reload.
+
+## Verification commands
 
 ```sh
 npm test
