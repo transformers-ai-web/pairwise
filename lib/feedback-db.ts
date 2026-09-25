@@ -1,7 +1,5 @@
-import sqlite3 from 'sqlite3';
 import { randomUUID } from 'node:crypto';
-import { mkdirSync } from 'node:fs';
-import path from 'node:path';
+import { createClient, type Client } from '@libsql/client';
 
 export type FeedbackInsert = {
   category: string;
@@ -14,16 +12,10 @@ export type FeedbackRow = FeedbackInsert & {
   createdAt: string;
 };
 
-const DEFAULT_DB_PATH = path.join(process.cwd(), 'data', 'feedback.sqlite');
+export type SqlClient = Pick<Client, 'execute'>;
 
-export function createFeedbackStore(options: { dbPath?: string } = {}) {
-  const dbPath = options.dbPath ?? DEFAULT_DB_PATH;
-  mkdirSync(path.dirname(dbPath), { recursive: true });
-
-  const db = new sqlite3.Database(dbPath);
-
-  db.serialize(() => {
-    db.run(`
+export function createFeedbackStore(client: SqlClient) {
+  const schemaReady = client.execute(`
       CREATE TABLE IF NOT EXISTS feedback (
         id TEXT PRIMARY KEY,
         category TEXT NOT NULL,
@@ -32,7 +24,6 @@ export function createFeedbackStore(options: { dbPath?: string } = {}) {
         created_at TEXT NOT NULL
       )
     `);
-  });
 
   return {
     async insert(input: FeedbackInsert): Promise<FeedbackRow> {
@@ -47,45 +38,39 @@ export function createFeedbackStore(options: { dbPath?: string } = {}) {
       const id = randomUUID();
       const createdAt = new Date().toISOString();
 
-      await new Promise<void>((resolve, reject) => {
-        db.run(
-          'INSERT INTO feedback (id, category, message, pair, created_at) VALUES (?, ?, ?, ?, ?)',
-          [id, category.slice(0, 100), message.slice(0, 1500), pair, createdAt],
-          (error) => error ? reject(error) : resolve()
-        );
-      });
+      await schemaReady;
+      await client.execute(
+        'INSERT INTO feedback (id, category, message, pair, created_at) VALUES (?, ?, ?, ?, ?)',
+        [id, category.slice(0, 100), message.slice(0, 1500), pair, createdAt]
+      );
 
       return { id, category, message, pair, createdAt };
     },
 
     async list(): Promise<FeedbackRow[]> {
-      return new Promise((resolve, reject) => {
-        db.all(
-          'SELECT id, category, message, pair, created_at AS createdAt FROM feedback ORDER BY created_at DESC',
-          (error, rows: Array<{ id: string; category: string; message: string; pair: number; createdAt: string }>) => {
-            if (error) {
-              reject(error);
-              return;
-            }
-
-            resolve(rows.map((row) => ({
-              id: row.id,
-              category: row.category,
-              message: row.message,
-              pair: row.pair,
-              createdAt: row.createdAt,
-            })));
-          }
-        );
-      });
-    },
-
-    close(): Promise<void> {
-      return new Promise((resolve, reject) => {
-        db.close((error) => error ? reject(error) : resolve());
-      });
+      await schemaReady;
+      const result = await client.execute('SELECT id, category, message, pair, created_at AS createdAt FROM feedback ORDER BY created_at DESC');
+      return result.rows.map((row) => ({
+        id: String(row.id),
+        category: String(row.category),
+        message: String(row.message),
+        pair: Number(row.pair),
+        createdAt: String(row.createdAt),
+      }));
     },
   };
 }
 
-export const feedbackStore = createFeedbackStore();
+let feedbackStore: ReturnType<typeof createFeedbackStore> | undefined;
+
+export function getFeedbackStore() {
+  if (feedbackStore) return feedbackStore;
+
+  const url = process.env.TURSO_DATABASE_URL;
+  if (!url) {
+    throw new Error('TURSO_DATABASE_URL is not configured.');
+  }
+
+  feedbackStore = createFeedbackStore(createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN }));
+  return feedbackStore;
+}

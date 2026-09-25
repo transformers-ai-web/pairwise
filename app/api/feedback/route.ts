@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { feedbackStore } from '@/lib/feedback-db';
+import { getFeedbackStore } from '@/lib/feedback-db';
 
 export const runtime = 'nodejs';
 
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Feedback requires a category, message, and pair number.' }, { status: 400 });
     }
 
-    const saved = await feedbackStore.insert({ category, message, pair: Math.max(0, pair) });
+    const saved = await getFeedbackStore().insert({ category, message, pair: Math.max(0, pair) });
     return NextResponse.json({ success: true, feedback: saved }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Could not save feedback.';

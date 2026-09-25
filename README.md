@@ -26,9 +26,9 @@ Without environment variables, the dashboard runs as a clearly labelled local pr
 
 ## Feedback
 
-The footer includes a Feedback form with a category, message (up to 1,500 characters), and the current practice pair. Submissions are sent to a server-side SQLite database stored in the local `data/feedback.sqlite` file, so they persist across requests without a cloud service.
+The footer includes a Feedback form with a category, message (up to 1,500 characters), and the current practice pair. Submissions are sent to a server-side SQLite-compatible libSQL database. Set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` in the deployment environment.
 
-The form posts to `/api/feedback`, which inserts the row into SQLite. If the save fails, it falls back to copying the message so the user can retry or share it elsewhere. The message stays in component memory while opening and closing the form, and clears on page reload.
+The form posts to `/api/feedback`, which inserts the row into SQLite-compatible storage. Vercel cannot reliably persist a local SQLite file, so production should use a hosted libSQL database such as Turso. If the save fails, it falls back to copying the message so the user can retry or share it elsewhere. The message stays in component memory while opening and closing the form, and clears on page reload.
 
 ## Verification commands
 
