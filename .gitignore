@@ -4,6 +4,7 @@ node_modules/
 .next/
 out/
 deployment.tar.gz
+data/
 .env*
 !.env.example
 *.tsbuildinfo
