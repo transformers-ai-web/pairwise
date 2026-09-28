@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, ArrowUpRight, Check, CheckCheck, Leaf, RotateCcw, Sparkles } from 'lucide-react';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, CheckCheck, Leaf, LogOut, RotateCcw, Sparkles } from 'lucide-react';
 import { allGenAiAtomicTopics, genAiPairs } from '@/lib/genai';
 
 const progressKey = 'pairwise-genai-v3';
@@ -9,28 +10,79 @@ const progressKey = 'pairwise-genai-v3';
 type SavedState = { completed: string[]; pair: number };
 
 export default function GenAiPage() {
+  const { data: session, status: authStatus } = useSession();
   const [completed, setCompleted] = useState<string[]>([]);
   const [pair, setPair] = useState(0);
   const [ready, setReady] = useState(false);
   const [revision, setRevision] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('');
 
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(progressKey) || 'null') as Partial<SavedState> | null;
-      const validCompleted = Array.isArray(saved?.completed) ? saved.completed.filter(id => allGenAiAtomicTopics.some(topic => topic.id === id)) : [];
-      setCompleted(validCompleted);
-      setPair(Number.isInteger(saved?.pair) && saved!.pair! >= 0 && saved!.pair! < genAiPairs.length ? saved!.pair! : 0);
-    } catch {
-      setCompleted([]);
-      setPair(0);
-    }
-    setReady(true);
-  }, []);
+    if (authStatus === 'loading') return;
+    let active = true;
+    setReady(false);
 
-  function save(nextCompleted: string[], nextPair: number) {
+    async function load() {
+      try {
+        let saved: Partial<SavedState> | null = null;
+        if (session?.user?.id) {
+          const response = await fetch('/api/progress?module=genai', { cache: 'no-store' });
+          if (!response.ok) throw new Error('Could not load account progress.');
+          const result = await response.json();
+          if (result.progress) {
+            saved = result.progress as Partial<SavedState>;
+            setSaveStatus('Synced to your account');
+          } else {
+            saved = JSON.parse(localStorage.getItem(progressKey) || 'null') as Partial<SavedState> | null;
+            if (saved) {
+              const migration = await fetch('/api/progress', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ module: 'genai', progress: saved }),
+              });
+              if (!migration.ok) throw new Error('Local progress could not be migrated.');
+              setSaveStatus('Synced to your account');
+            } else {
+              setSaveStatus('No account progress saved yet');
+            }
+          }
+        } else {
+          saved = JSON.parse(localStorage.getItem(progressKey) || 'null') as Partial<SavedState> | null;
+          setSaveStatus('Saved on this device');
+        }
+
+        const validCompleted = Array.isArray(saved?.completed) ? saved.completed.filter(id => allGenAiAtomicTopics.some(topic => topic.id === id)) : [];
+        const validPair = Number.isInteger(saved?.pair) && saved!.pair! >= 0 && saved!.pair! < genAiPairs.length ? saved!.pair! : 0;
+        if (active) { setCompleted(validCompleted); setPair(validPair); setReady(true); }
+      } catch {
+        if (active) setSaveStatus('Could not load progress');
+      }
+    }
+
+    void load();
+    return () => { active = false; };
+  }, [authStatus, session?.user?.id]);
+
+  async function save(nextCompleted: string[], nextPair: number) {
     setCompleted(nextCompleted);
     setPair(nextPair);
-    try { localStorage.setItem(progressKey, JSON.stringify({ completed: nextCompleted, pair: nextPair } satisfies SavedState)); } catch { /* Progress remains available for this session. */ }
+    const next = { completed: nextCompleted, pair: nextPair } satisfies SavedState;
+    try { localStorage.setItem(progressKey, JSON.stringify(next)); } catch { /* Keep the current session usable if local storage is unavailable. */ }
+    if (session?.user?.id) {
+      try {
+        const response = await fetch('/api/progress', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ module: 'genai', progress: next }),
+        });
+        if (!response.ok) throw new Error('Progress could not be saved.');
+        setSaveStatus('Synced to your account');
+      } catch {
+        setSaveStatus('Saved on this device; account sync failed');
+      }
+    } else {
+      setSaveStatus('Saved on this device');
+    }
   }
 
   function toggle(topicId: string) {
@@ -44,6 +96,11 @@ export default function GenAiPage() {
     save(completed, nextPair);
   }
 
+  async function handleSignOut() {
+    try { localStorage.setItem(progressKey, JSON.stringify({ completed, pair } satisfies SavedState)); } catch { /* Keep the account copy if local storage is unavailable. */ }
+    await signOut();
+  }
+
   const current = genAiPairs[pair];
   const pairDone = current?.subtopics.every(topic => completed.includes(topic.id)) ?? false;
   const completedCount = completed.length;
@@ -53,7 +110,7 @@ export default function GenAiPage() {
   return <div className="app-shell genai-shell">
     <header className="topbar">
       <a className="brand" href="/" aria-label="Pairwise home"><span className="brand-mark"><span /><span /></span>pairwise<span className="brand-period">.</span></a>
-      <div className="header-right"><span className="edition">GEN AI INTERVIEW EDITION</span><span className="status-chip">{ready ? `${completedCount}/${totalCount} complete` : 'Loading'}</span></div>
+      <div className="header-right"><span className="edition">GEN AI INTERVIEW EDITION</span><span className="status-chip">{ready ? `${completedCount}/${totalCount} complete` : 'Loading'}</span>{session?.user ? <button className="account" onClick={() => void handleSignOut()} title="Sign out"><span>{session.user.name || session.user.email || 'Signed in'}</span><LogOut size={15}/></button> : <button className="sign-in" onClick={() => void signIn('google')} disabled={authStatus === 'loading'}>Sign in with Google <ArrowUpRight size={15}/></button>}</div>
     </header>
     <main>
       <section className="genai-intro">
@@ -63,6 +120,7 @@ export default function GenAiPage() {
         <p>One focused pair at a time. Study these two atomic topics from wherever you prefer, mark both complete, then unlock the next pair.</p>
         <div className="genai-summary"><div><strong>{completedCount}</strong><span>topics complete</span></div><div><strong>{totalCount - completedCount}</strong><span>still to study</span></div><div><strong>{completion}%</strong><span>roadmap progress</span></div></div>
         <div className="progress-track" role="progressbar" aria-label="GenAI roadmap progress" aria-valuenow={completedCount} aria-valuemin={0} aria-valuemax={totalCount}><span style={{ width: `${completion}%` }}/></div>
+        <p className="genai-save-status" role="status">{saveStatus}</p>
       </section>
       {completedCount === totalCount && !revision ? <section className="welcome-card"><CheckCheck size={36}/><div className="eyebrow">ROADMAP COMPLETE</div><h2>You finished the roadmap.</h2><p>Run through the pairs again and practise explaining each tradeoff out loud.</p><button className="primary" onClick={() => { setRevision(true); save(completed, 0); }}>Start revision <RotateCcw size={16}/></button></section> : <section className="genai-session" aria-label="Current GenAI study pair">
         <div className="section-heading"><div className="section-label"><span className="tiny-square"/> YOUR NEXT TWO</div><span className="pair-number">PAIR {String(pair + 1).padStart(2, '0')} <span>/ {genAiPairs.length}</span></span></div>
