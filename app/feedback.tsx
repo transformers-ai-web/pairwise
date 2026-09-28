@@ -74,7 +74,7 @@ export default function Feedback({ pair }: { pair: number }) {
 
       setMessage('');
       setCategory('Suggestion');
-      setStatus('Saved. Thanks for the feedback.');
+      setStatus('Sent. Thanks for the feedback.');
       setOpen(false);
     } catch (error) {
       const messageText = error instanceof Error ? error.message : 'Could not save feedback.';
@@ -99,8 +99,8 @@ export default function Feedback({ pair }: { pair: number }) {
           <label htmlFor="feedback-message">Your feedback</label>
           <textarea ref={inputRef} id="feedback-message" placeholder="It would be helpful if…" rows={5} maxLength={1500} required value={message} onChange={event => { setMessage(event.target.value); setStatus(''); }} aria-describedby="feedback-help"/>
           <div className="feedback-meta"><span>About pair {String(pair + 1).padStart(2, '0')}</span><span>{message.length}/1500</span></div>
-          <p id="feedback-help" className="feedback-help">Saved to a local SQLite database on the server for later review. If the save fails, your message is copied as a fallback.</p>
-          <button className="primary" type="submit" disabled={!message.trim() || submitting || copying}>{submitting ? 'Saving…' : <><Send size={14}/> Send feedback</>}</button>
+          <p id="feedback-help" className="feedback-help">Your feedback is sent securely to the team. If sending fails, your message is copied as a fallback.</p>
+          <button className="primary" type="submit" disabled={!message.trim() || submitting || copying}>{submitting ? 'Sending…' : <><Send size={14}/> Send feedback</>}</button>
           <p className="feedback-status" role="status">{status}</p>
         </form>
       </section>

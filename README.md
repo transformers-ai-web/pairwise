@@ -24,11 +24,15 @@ Without environment variables, the dashboard runs as a clearly labelled local pr
 - Sources are linked in the collection. Most problems are general interview foundations based on the LeetCode Top Interview 150 study plan; the last two link to reported Atlassian interview experiences. The starter bank is not a verified MAANG-wide company-frequency dataset and makes no per-company frequency claims. GFG links open explanatory problem articles, which may include solutions.
 - Only original short prompts, titles and links are included; problem statements are not copied.
 
+## GenAI roadmap
+
+The `/genai` route is a card-based interview roadmap covering foundations, transformers, embeddings, prompting, RAG, retrieval, fine-tuning, evaluation, agents, safety, inference, scaling, multimodal systems, MLOps, system design, and AI product thinking. Each card links to an external resource and can be marked complete. GenAI progress is saved locally in the browser under a separate key from interview practice.
+
 ## Feedback
 
-The footer includes a Feedback form with a category, message (up to 1,500 characters), and the current practice pair. Submissions are sent to a server-side SQLite-compatible libSQL database. Set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` in the deployment environment.
+The footer includes a Feedback form with a category, message (up to 1,500 characters), and the current practice pair. The form sends submissions through the server to the configured inbox. Set `RESEND_API_KEY`, `FEEDBACK_TO_EMAIL`, and `FEEDBACK_FROM_EMAIL` in the deployment environment.
 
-The form posts to `/api/feedback`, which inserts the row into SQLite-compatible storage. Vercel cannot reliably persist a local SQLite file, so production should use a hosted libSQL database such as Turso. If the save fails, it falls back to copying the message so the user can retry or share it elsewhere. The message stays in component memory while opening and closing the form, and clears on page reload.
+The form posts to `/api/feedback`, which calls Resend from the server. The API key is never exposed to the browser. Configure and verify the sender address with Resend before deploying. If sending fails, the form falls back to copying the message. The message stays in component memory while opening and closing the form, and clears on page reload.
 
 ## Verification commands
 
