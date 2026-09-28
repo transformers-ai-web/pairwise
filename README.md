@@ -13,7 +13,17 @@ npm run dev
 
 Open http://localhost:3000. On PowerShell systems that block npm.ps1, use `npm.cmd` instead of `npm`.
 
-Without environment variables, the dashboard runs as a clearly labelled local preview. Solved problems and the current pair persist in this browser. Storage failures are surfaced; unsaved changes are not presented as saved.
+Without Google OAuth configuration, the dashboard runs as a local preview. Signed-out progress stays in this browser. After sign-in, interview and GenAI progress are saved to the local PostgreSQL database for that Google account.
+
+## Local Google sign-in and progress storage
+
+1. Create a Google OAuth client in Google Cloud Console and add `http://localhost:3000` as an authorized JavaScript origin.
+2. Add `http://localhost:3000/api/auth/callback/google` as an authorized redirect URI.
+3. Set `AUTH_SECRET`, `AUTH_GOOGLE_ID`, and `AUTH_GOOGLE_SECRET` in `.env.local` using the values from Auth.js and Google Cloud.
+4. Set `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` to a running local PostgreSQL database.
+5. On the first signed-in progress request, the app creates a `user_progress` table automatically. Rows are scoped by Google account ID and module (`interview` or `genai`). Existing browser progress is copied to the account the first time it signs in, if that account has no saved progress yet.
+
+The app uses Auth.js JWT sessions, so it does not store OAuth sessions in PostgreSQL. PostgreSQL stores only per-user practice progress. Local PostgreSQL is for development; a deployed Vercel app will need a database reachable from Vercel.
 
 ## Practice behavior
 
@@ -26,7 +36,7 @@ Without environment variables, the dashboard runs as a clearly labelled local pr
 
 ## GenAI roadmap
 
-The `/genai` route is a card-based interview roadmap covering foundations, transformers, embeddings, prompting, RAG, retrieval, fine-tuning, evaluation, agents, safety, inference, scaling, multimodal systems, MLOps, system design, and AI product thinking. Each card links to an external resource and can be marked complete. GenAI progress is saved locally in the browser under a separate key from interview practice.
+The `/genai` route is a card-based interview roadmap covering foundations, transformers, embeddings, prompting, RAG, retrieval, fine-tuning, evaluation, agents, safety, inference, scaling, multimodal systems, MLOps, system design, and AI product thinking. Each card can be marked complete. Signed-in GenAI progress is stored separately from interview practice in PostgreSQL; signed-out progress stays in the browser.
 
 ## Feedback
 

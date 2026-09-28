@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, ArrowRight, ArrowLeft, Check, CheckCheck, BookOpen, X, RotateCcw, Leaf, Code2 } from 'lucide-react';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import { ArrowUpRight, ArrowRight, ArrowLeft, Check, CheckCheck, BookOpen, X, RotateCcw, Leaf, Code2, LogOut } from 'lucide-react';
 import { pairs, problems } from '@/lib/problems';
 import { emptyProgress, nextPair, normalizeProgress, type Progress } from '@/lib/progress';
 import Feedback from './feedback';
@@ -9,6 +10,7 @@ import Feedback from './feedback';
 const localKey = 'pairwise-preview-v1';
 
 export default function Home() {
+  const { data: session, status: authStatus } = useSession();
   const [progress, setProgress] = useState<Progress>(emptyProgress);
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -38,30 +40,83 @@ export default function Home() {
   }, [modal]);
 
   useEffect(() => {
+    if (authStatus === 'loading') return;
     let active = true;
     const version = ++generation.current;
     setReady(false); setRevision(false); setError('');
-    try {
-      const saved = JSON.parse(localStorage.getItem(localKey) || 'null');
-      setProgress(normalizeProgress(saved));
-      setSaveStatus('Saved on this device');
-    } catch {
-      setProgress(emptyProgress);
-      setSaveStatus('Device storage unavailable');
+
+    async function load() {
+      if (session?.user?.id) {
+        try {
+          const response = await fetch('/api/progress?module=interview', { cache: 'no-store' });
+          if (!response.ok) {
+            const result = await response.json().catch(() => null);
+            throw new Error(result?.error || 'Progress could not be loaded.');
+          }
+          const result = await response.json();
+          if (!active || version !== generation.current) return;
+
+          if (result.progress) {
+            setProgress(normalizeProgress(result.progress));
+            setSaveStatus('Synced to your account');
+          } else {
+            const localValue = localStorage.getItem(localKey);
+            const localProgress = normalizeProgress(JSON.parse(localValue || 'null'));
+            setProgress(localProgress);
+            if (localValue) {
+              const migration = await fetch('/api/progress', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ module: 'interview', progress: localProgress }),
+              });
+              if (!migration.ok) throw new Error('Local progress could not be migrated.');
+              setSaveStatus('Synced to your account');
+            } else {
+              setSaveStatus('No account progress saved yet');
+            }
+          }
+        } catch (error) {
+          if (active) {
+            setError(error instanceof Error ? error.message : 'Could not load account progress. Please try again.');
+            setSaveStatus('Account progress unavailable');
+          }
+          return;
+        }
+      } else {
+        try {
+          setProgress(normalizeProgress(JSON.parse(localStorage.getItem(localKey) || 'null')));
+          setSaveStatus('Saved on this device');
+        } catch {
+          setProgress(emptyProgress);
+          setSaveStatus('Device storage unavailable');
+        }
+      }
+
+      if (active && version === generation.current) setReady(true);
     }
-    if (active && version === generation.current) setReady(true);
+
+    void load();
     return () => { active = false; };
-  }, []);
+  }, [authStatus, session?.user?.id]);
 
   async function commit(next: Progress) {
     if (saving.current || !ready) return;
     saving.current = true; setBusy(true); setError('');
     const version = generation.current;
     try {
-      localStorage.setItem(localKey, JSON.stringify(next));
+      if (session?.user?.id) {
+        const response = await fetch('/api/progress', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ module: 'interview', progress: next }),
+        });
+        if (!response.ok) throw new Error('Progress could not be saved.');
+      } else {
+        localStorage.setItem(localKey, JSON.stringify(next));
+      }
       if (version === generation.current) {
         setProgress(next);
-        setSaveStatus('Saved on this device');
+        setSaveStatus(session?.user?.id ? 'Synced to your account' : 'Saved on this device');
       }
     } catch {
       setError('Progress could not be saved. Please try again.');
@@ -81,10 +136,15 @@ export default function Home() {
     void commit({ ...progress, pair });
   }
 
+  async function handleSignOut() {
+    try { localStorage.setItem(localKey, JSON.stringify(progress)); } catch { /* Keep the account copy if local storage is unavailable. */ }
+    await signOut();
+  }
+
   return <div className="app-shell">
     <header className="topbar">
       <a className="brand" href="/" aria-label="Pairwise home"><span className="brand-mark"><span /><span /></span>pairwise<span className="brand-period">.</span></a>
-      <div className="header-right"><a className="module-link" href="/genai">GenAI roadmap <ArrowUpRight size={14}/></a><span className="edition">THE INTERVIEW EDITION</span><span className="status-chip">Local preview</span></div>
+      <div className="header-right"><a className="module-link" href="/genai">GenAI roadmap <ArrowUpRight size={14}/></a><span className="edition">THE INTERVIEW EDITION</span>{session?.user ? <button className="account" onClick={() => void handleSignOut()} title="Sign out"><span>{session.user.name || session.user.email || 'Signed in'}</span><LogOut size={15}/></button> : <button className="sign-in" onClick={() => void signIn('google')} disabled={authStatus === 'loading'}>Sign in with Google <ArrowUpRight size={15}/></button>}</div>
     </header>
     <main>
       <section className="intro"><div className="eyebrow"><span className="live-dot"/> A LITTLE EVERY DAY GOES A LONG WAY</div><h1>Big interviews.<br/>Small, steady <em>steps.</em></h1><p>Your quiet corner to prepare for MAANG + Atlassian.<br className="desktop-break"/> Two problems at a time. One step closer.</p></section>
@@ -100,7 +160,7 @@ export default function Home() {
           <div className="card-footer"><span className={pairDone ? 'pair-complete' : ''}>{pairDone ? <CheckCheck size={16}/> : <Leaf size={16}/>}<span>{pairDone ? 'Nice work. Another step forward.' : 'Mark both problems done to unlock the next pair.'}</span></span><div className="pair-navigation"><button className="previous" aria-label="Previous pair" disabled={!ready || busy || progress.pair === 0} onClick={() => move(-1)}><ArrowLeft size={16}/></button><button className="primary" disabled={!ready || busy || !pairDone || progress.pair === pairs.length - 1} onClick={() => move(1)}>Next pair <ArrowRight size={16}/></button></div></div>
         </article>}
         {error && !modal && <p className="error" role="alert">{error}</p>}
-        <div className="below-card"><span><span className="save-dot"/>{!ready ? 'Loading your progress…' : saveStatus}</span><button className="text-button" onClick={() => setModal('collection')}><BookOpen size={14}/> Explore the collection <ArrowUpRight size={13}/></button></div>
+        <div className="below-card"><span><span className="save-dot"/>{!ready ? 'Loading your progress…' : saveStatus}{!session?.user ? ' · Local preview' : ''}</span><button className="text-button" onClick={() => setModal('collection')}><BookOpen size={14}/> Explore the collection <ArrowUpRight size={13}/></button></div>
       </section>
       <section className="bottom-note"><span className="note-line"/><span>Less scrolling. More solving.</span><span className="note-line"/></section>
     </main>
