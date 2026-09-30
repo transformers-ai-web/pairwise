@@ -25,6 +25,12 @@ Without Google OAuth configuration, the dashboard runs as a local preview. Signe
 
 The app uses Auth.js JWT sessions, so it does not store OAuth sessions in PostgreSQL. PostgreSQL stores only per-user practice progress. Local PostgreSQL is for development; a deployed Vercel app will need a database reachable from Vercel.
 
+## Deployed database configuration
+
+For the Vercel deployment, set `DATABASE_URL` in the project's Production environment variables to the external database URL from Render, then redeploy. No separate `DB_*` variables or `PGSSLMODE` are needed when using this URL.
+
+`DATABASE_URL` takes precedence over `DB_*` settings. URL connections enable TLS with certificate verification by default; explicit SSL options in the URL override this default. For a local database without TLS, keep the existing `DB_*` configuration or append `?sslmode=disable` to a local database URL. Keep database credentials server-only; do not use a `NEXT_PUBLIC_` prefix.
+
 ## Practice behavior
 
 - 32 starter problems, arranged into 16 topic-oriented pairs.

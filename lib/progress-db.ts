@@ -8,6 +8,17 @@ const globalForProgressDb = globalThis as typeof globalThis & {
 function getPool() {
   if (globalForProgressDb.progressPool) return globalForProgressDb.progressPool;
 
+  const connectionString = process.env.DATABASE_URL?.trim();
+  if (connectionString) {
+    globalForProgressDb.progressPool = new Pool({
+      connectionString,
+      // Hosted databases use TLS by default; explicit URL SSL options take precedence.
+      ssl: true,
+      max: 5,
+    });
+    return globalForProgressDb.progressPool;
+  }
+
   const host = process.env.DB_HOST;
   const database = process.env.DB_NAME;
   const user = process.env.DB_USER;
@@ -15,7 +26,7 @@ function getPool() {
   const port = Number(process.env.DB_PORT || 5432);
 
   if (!host || !database || !user || !password || !Number.isInteger(port)) {
-    throw new Error('PostgreSQL is not fully configured.');
+    throw new Error('PostgreSQL is not fully configured. Set DATABASE_URL or all required DB_* variables.');
   }
 
   globalForProgressDb.progressPool = new Pool({ host, port, database, user, password, max: 5 });
