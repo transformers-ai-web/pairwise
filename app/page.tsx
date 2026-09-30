@@ -144,7 +144,7 @@ export default function Home() {
   return <div className="app-shell">
     <header className="topbar">
       <a className="brand" href="/" aria-label="Pairwise home"><span className="brand-mark"><span /><span /></span>pairwise<span className="brand-period">.</span></a>
-      <div className="header-right"><a className="module-link" href="/genai">GenAI roadmap <ArrowUpRight size={14}/></a><span className="edition">THE INTERVIEW EDITION</span>{session?.user ? <button className="account" onClick={() => void handleSignOut()} title="Sign out"><span>{session.user.name || session.user.email || 'Signed in'}</span><LogOut size={15}/></button> : <button className="sign-in" onClick={() => void signIn('google')} disabled={authStatus === 'loading'}>Sign in with Google <ArrowUpRight size={15}/></button>}</div>
+      <div className="header-right"><a className="module-link" href="/genai">The GenAI Edition <ArrowUpRight size={14}/></a><span className="edition">THE INTERVIEW EDITION</span>{session?.user ? <button className="account" onClick={() => void handleSignOut()} title="Sign out"><span>{session.user.name || session.user.email || 'Signed in'}</span><LogOut size={15}/></button> : <button className="sign-in" onClick={() => void signIn('google')} disabled={authStatus === 'loading'}>Sign in with Google <ArrowUpRight size={15}/></button>}</div>
     </header>
     <main>
       <section className="intro"><div className="eyebrow"><span className="live-dot"/> A LITTLE EVERY DAY GOES A LONG WAY</div><h1>Big interviews.<br/>Small, steady <em>steps.</em></h1><p>Your quiet corner to prepare for MAANG + Atlassian.<br className="desktop-break"/> Two problems at a time. One step closer.</p></section>
