@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 const globalForProgressDb = globalThis as typeof globalThis & {
   progressPool?: Pool;
   progressSchemaReady?: Promise<void>;
+  usersSchemaReady?: Promise<void>;
 };
 
 function getPool() {
@@ -50,6 +51,40 @@ async function ensureSchema() {
   }
 
   return globalForProgressDb.progressSchemaReady;
+}
+
+export async function saveGoogleUser(user: {
+  googleId: string;
+  email: string | null;
+  emailVerified: boolean;
+  name: string | null;
+}) {
+  if (!globalForProgressDb.usersSchemaReady) {
+    globalForProgressDb.usersSchemaReady = getPool().query(`
+      CREATE TABLE IF NOT EXISTS users (
+        google_id TEXT PRIMARY KEY,
+        email TEXT,
+        email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+        name TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `).then(() => undefined).catch(error => {
+      globalForProgressDb.usersSchemaReady = undefined;
+      throw error;
+    });
+  }
+  await globalForProgressDb.usersSchemaReady;
+  await getPool().query(
+    `INSERT INTO users (google_id, email, email_verified, name)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (google_id)
+     DO UPDATE SET email = EXCLUDED.email,
+                   email_verified = EXCLUDED.email_verified,
+                   name = EXCLUDED.name,
+                   updated_at = NOW()`,
+    [user.googleId, user.email, user.email !== null && user.emailVerified, user.name]
+  );
 }
 
 export async function loadUserProgress(userId: string, module: 'interview' | 'genai') {
