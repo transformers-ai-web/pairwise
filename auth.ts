@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
+import { saveGoogleUser } from '@/lib/progress-db';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
@@ -19,7 +20,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google') {
+        try {
+          await saveGoogleUser({
+            googleId: account.providerAccountId,
+            email: profile?.email ?? null,
+            emailVerified: profile?.email_verified === true,
+            name: profile?.name ?? user.name ?? null,
+          });
+        } catch (error) {
+          // Keep Google sign-in available during a database outage; retry on the next sign-in.
+          console.error('[auth] user profile save failed', {
+            code: (error as { code?: string } | null)?.code,
+          });
+        }
+      }
       if (process.env.NODE_ENV === 'development') {
         console.info('[auth] signed in', {
           authJsUserId: user.id,

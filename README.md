@@ -23,7 +23,9 @@ Without Google OAuth configuration, the dashboard runs as a local preview. Signe
 4. Set `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` to a running local PostgreSQL database.
 5. On the first signed-in progress request, the app creates a `user_progress` table automatically. Rows are scoped by Google account ID and module (`interview` or `genai`). Existing browser progress is copied to the account the first time it signs in, if that account has no saved progress yet.
 
-The app uses Auth.js JWT sessions, so it does not store OAuth sessions in PostgreSQL. PostgreSQL stores only per-user practice progress. Local PostgreSQL is for development; a deployed Vercel app will need a database reachable from Vercel.
+The app uses Auth.js JWT sessions, so it does not store OAuth sessions in PostgreSQL. PostgreSQL stores per-user practice progress and Google user profiles. Local PostgreSQL is for development; a deployed Vercel app will need a database reachable from Vercel.
+
+On Google sign-in, the app creates the `users` table if needed and inserts or updates the user's `google_id`, `email`, `email_verified`, `name`, and timestamps. Verification comes only from Google's `email_verified` claim. Join `users.google_id` to `user_progress.user_id` to associate profiles with progress; existing progress rows remain valid without a profile record. Existing users populate their profile when they next sign in with Google (sign out and back in if already signed in). Database failures are logged as `[auth] user profile save failed` and do not prevent sign-in; profile saving is retried on the next Google sign-in. This change does not send email.
 
 ## Deployed database configuration
 
