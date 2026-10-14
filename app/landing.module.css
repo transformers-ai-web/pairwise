@@ -78,3 +78,5 @@
   .floatingCard { translate: 0 var(--card-scroll, 0px); }
   .photoTag { translate: 0 var(--frame-scroll, 0px); }
 }
+
+.heroPhoto { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; background: transparent; border-radius: 16px; }
