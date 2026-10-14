@@ -46,6 +46,16 @@ For the Vercel deployment, set `DATABASE_URL` in the project's Production enviro
 
 The `/genai` route is a card-based interview roadmap covering foundations, transformers, embeddings, prompting, RAG, retrieval, fine-tuning, evaluation, agents, safety, inference, scaling, multimodal systems, MLOps, system design, and AI product thinking. Each card can be marked complete. Signed-in GenAI progress is stored separately from interview practice in PostgreSQL; signed-out progress stays in the browser.
 
+## Repo Challenges
+
+Visit `/practice/repo-challenges` to browse repository-based challenges and open a problem statement. The sample, **Fix duplicate chunks in RAG retrieval**, is a 45-minute Medium challenge covering Python, RAG, Retrieval, and Debugging. Repository URLs and base commits are placeholders; the coding environment button is disabled.
+
+The `RepoChallenge` model in `lib/repo-challenges.ts` uses the `repo_challenge` type and includes the repository URL, base commit, skills, duration, and publication status (`draft`, `published`, or `archived`). Only published challenges appear on the list and detail routes. Unknown or unpublished IDs return 404.
+
+Using the existing PostgreSQL configuration and pool, the first request automatically creates `repo_challenges` and inserts the sample if its ID is absent. Repeated initialization preserves existing edits. No manual migration or seed command is needed; the database user needs table creation and read/write permissions, as with existing tables. With no database configuration, both pages use the sample in memory for local preview. Partial configuration or database failures surface as errors rather than silently using preview data.
+
+Run `npm run dev` as usual. These pages require the Next.js server and are not available through static export. This foundation does not clone repositories or execute code, tests, or submissions.
+
 ## Feedback
 
 The footer includes a Feedback form with a category, message (up to 1,500 characters), and the current practice pair. The form sends submissions through the server to the configured inbox. Set `RESEND_API_KEY`, `FEEDBACK_TO_EMAIL`, and `FEEDBACK_FROM_EMAIL` in the deployment environment.

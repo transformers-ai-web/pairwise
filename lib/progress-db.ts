@@ -6,7 +6,7 @@ const globalForProgressDb = globalThis as typeof globalThis & {
   usersSchemaReady?: Promise<void>;
 };
 
-function getPool() {
+export function getPool() {
   if (globalForProgressDb.progressPool) return globalForProgressDb.progressPool;
 
   const connectionString = process.env.DATABASE_URL?.trim();

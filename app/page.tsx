@@ -148,6 +148,7 @@ export default function Home() {
     </header>
     <main>
       <section className="intro"><div className="eyebrow"><span className="live-dot"/> A LITTLE EVERY DAY GOES A LONG WAY</div><h1>Big interviews.<br/>Small, steady <em>steps.</em></h1><p>Your quiet corner to prepare for MAANG + Atlassian.<br className="desktop-break"/> Two problems at a time. One step closer.</p></section>
+      <p style={{ textAlign: 'center', margin: '0 0 28px' }}><a className="module-link" href="/practice/repo-challenges">Repo Challenges <ArrowUpRight size={14}/></a></p>
       <section className="practice-area" aria-label="Practice dashboard">
         <div className="section-heading"><div className="section-label"><span className="tiny-square"/> YOUR PRACTICE</div><div className="solved-counter"><CheckCheck size={16}/><strong>{solvedCount}</strong><span>problems solved</span></div></div>
         <div className="progress-track" role="progressbar" aria-label="Collection progress" aria-valuenow={solvedCount} aria-valuemin={0} aria-valuemax={problems.length}><span style={{ width: `${solvedCount / problems.length * 100}%` }}/></div>
