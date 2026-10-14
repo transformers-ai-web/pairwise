@@ -117,7 +117,7 @@ export default function Landing() {
           event.currentTarget.style.setProperty('--lean-x', '0deg');
           event.currentTarget.style.setProperty('--lean-y', '0deg');
         }}>
-          <img className={styles.heroPhoto} src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1100&q=85" alt="People collaborating around a laptop at a shared table" width="1100" height="900" fetchPriority="high"/>
+          <img className={styles.heroPhoto} src="/images/pairwise-workspace.jpg" alt="A laptop on a wooden desk beside a small potted plant" width="1280" height="853" fetchPriority="high"/>
           <div className={styles.photoTag}><span/> YOUR NEXT CHAPTER STARTS SMALL</div>
           <div className={styles.floatingCard}><div className={styles.cardTop}><span>TODAY’S LITTLE WIN</span><Leaf size={17}/></div><h3>One pair. A step forward.</h3><div><span className={styles.check}><Check size={13}/></span> Two Sum <small>Arrays & hashing</small></div><div><span className={styles.check}><Check size={13}/></span> Group Anagrams <small>Arrays & hashing</small></div><footer><span>Small effort. Real momentum.</span><span>2 / 2 <Check size={12}/></span></footer></div>
           <div className={styles.sideNote}>a little progress, every day ↗</div>
