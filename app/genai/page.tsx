@@ -147,7 +147,7 @@ export default function GenAiPage() {
     </header>
     <main>
       <section className="genai-intro">
-        <a className="back-link" href="/"><ArrowLeft size={14}/> Back to interview practice</a>
+        <a className="back-link" href="/practice"><ArrowLeft size={14}/> Back to interview practice</a>
         <div className="eyebrow"><Sparkles size={13}/> THE GEN AI EDITION</div>
         <h1>Two topics.<br/>A clear <em>next step.</em></h1>
         <p>One focused pair at a time. Study these two atomic topics from wherever you prefer, mark both complete, then unlock the next pair.</p>
@@ -168,6 +168,6 @@ export default function GenAiPage() {
         </article>
       </section>}
     </main>
-    <footer className="site-footer"><span>Build understanding one pair at a time.</span><a className="text-button" href="/"><ArrowLeft size={14}/> Interview practice</a><span>GEN AI <span className="footer-dot">·</span> TWO TOPICS AT A TIME</span></footer>
+    <footer className="site-footer"><span>Build understanding one pair at a time.</span><a className="text-button" href="/practice"><ArrowLeft size={14}/> Interview practice</a><span>GEN AI <span className="footer-dot">·</span> TWO TOPICS AT A TIME</span></footer>
   </div>;
 }
