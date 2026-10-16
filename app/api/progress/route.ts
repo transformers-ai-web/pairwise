@@ -1,22 +1,25 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { genAiPairs, allGenAiAtomicTopics } from '@/lib/genai';
+import { journeys, type InterviewModule } from '@/lib/journeys';
 import { normalizeProgress } from '@/lib/progress';
 import { loadUserProgress, saveUserProgress } from '@/lib/progress-db';
 
 export const runtime = 'nodejs';
 
-function validModule(value: string | null): value is 'interview' | 'genai' {
-  return value === 'interview' || value === 'genai';
+function validModule(value: string | null): value is InterviewModule | 'genai' {
+  return value === 'genai' || Object.values(journeys).some(journey => journey.module === value);
 }
 
-function normalizeModuleProgress(module: 'interview' | 'genai', value: unknown) {
+function normalizeModuleProgress(module: InterviewModule | 'genai', value: unknown) {
   if (!value || typeof value !== 'object') return null;
   const data = value as { solved?: unknown; completed?: unknown; pair?: unknown };
 
-  if (module === 'interview') {
+  if (module !== 'genai') {
     if (!Array.isArray(data.solved) || !data.solved.every(id => typeof id === 'string') || !Number.isInteger(data.pair)) return null;
-    return normalizeProgress(data);
+    const journey = Object.values(journeys).find(journey => journey.module === module);
+    if (!journey) return null;
+    return normalizeProgress(data, journey.problems);
   }
 
   if (!Array.isArray(data.completed) || !data.completed.every(id => typeof id === 'string') || !Number.isInteger(data.pair)) return null;

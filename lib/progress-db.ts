@@ -1,8 +1,10 @@
 import { Pool } from 'pg';
+import type { InterviewModule } from './journeys';
 
 const globalForProgressDb = globalThis as typeof globalThis & {
   progressPool?: Pool;
-  progressSchemaReady?: Promise<void>;
+  // Use a new cache key when the schema changes: Next.js preserves globals on reload.
+  progressFaangSchemaReady?: Promise<void>;
   usersSchemaReady?: Promise<void>;
 };
 
@@ -35,22 +37,24 @@ function getPool() {
 }
 
 async function ensureSchema() {
-  if (!globalForProgressDb.progressSchemaReady) {
-    globalForProgressDb.progressSchemaReady = getPool().query(`
+  if (!globalForProgressDb.progressFaangSchemaReady) {
+    globalForProgressDb.progressFaangSchemaReady = getPool().query(`
       CREATE TABLE IF NOT EXISTS user_progress (
         user_id TEXT NOT NULL,
-        module TEXT NOT NULL CHECK (module IN ('interview', 'genai')),
+        module TEXT NOT NULL CHECK (module IN ('interview', 'genai', 'interview-meta', 'interview-google', 'interview-apple', 'interview-amazon', 'interview-netflix')),
         progress JSONB NOT NULL,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         PRIMARY KEY (user_id, module)
-      )
+      );
+      ALTER TABLE user_progress DROP CONSTRAINT IF EXISTS user_progress_module_check;
+      ALTER TABLE user_progress ADD CONSTRAINT user_progress_module_check CHECK (module IN ('interview', 'genai', 'interview-meta', 'interview-google', 'interview-apple', 'interview-amazon', 'interview-netflix'));
     `).then(() => undefined).catch(error => {
-      globalForProgressDb.progressSchemaReady = undefined;
+      globalForProgressDb.progressFaangSchemaReady = undefined;
       throw error;
     });
   }
 
-  return globalForProgressDb.progressSchemaReady;
+  return globalForProgressDb.progressFaangSchemaReady;
 }
 
 export async function saveGoogleUser(user: {
@@ -87,7 +91,7 @@ export async function saveGoogleUser(user: {
   );
 }
 
-export async function loadUserProgress(userId: string, module: 'interview' | 'genai') {
+export async function loadUserProgress(userId: string, module: InterviewModule | 'genai') {
   await ensureSchema();
   const result = await getPool().query<{ progress: unknown }>(
     'SELECT progress FROM user_progress WHERE user_id = $1 AND module = $2',
@@ -96,7 +100,7 @@ export async function loadUserProgress(userId: string, module: 'interview' | 'ge
   return result.rows[0]?.progress ?? null;
 }
 
-export async function saveUserProgress(userId: string, module: 'interview' | 'genai', progress: unknown) {
+export async function saveUserProgress(userId: string, module: InterviewModule | 'genai', progress: unknown) {
   await ensureSchema();
   await getPool().query(
     `INSERT INTO user_progress (user_id, module, progress, updated_at)
