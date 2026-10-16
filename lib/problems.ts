@@ -1,4 +1,5 @@
-export type Problem = { id: string; title: string; difficulty: 'Easy' | 'Medium' | 'Hard'; topic: string; minutes: number; note: string; url: string; platform: 'LeetCode' | 'GFG'; source: string };
+import type { Evidence } from './reported-problems';
+export type Problem = { id: string; title: string; difficulty: 'Easy' | 'Medium' | 'Hard'; topic: string; minutes: number; note: string; url: string; platform: 'LeetCode' | 'GFG'; source: string; sourceKind?: 'Candidate report' | 'Community list' | 'General practice'; premium?: boolean; evidence?: Evidence };
 const lc = 'https://leetcode.com/studyplan/top-interview-150/';
 function problem(id: string, title: string, difficulty: Problem['difficulty'], topic: string, minutes: number, note: string): Problem { return { id, title, difficulty, topic, minutes, note, url: `https://leetcode.com/problems/${id}/`, platform: 'LeetCode', source: lc }; }
 export const problems: Problem[] = [

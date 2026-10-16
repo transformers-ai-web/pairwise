@@ -1,0 +1,61 @@
+import type { Problem } from './problems';
+
+const github = 'https://github.com/imkgarg/Awesome-Software-Engineering-Interview/blob/master/CodingCompanyTopQuestions.md#google';
+const discussion = 'https://leetcode.com/discuss/post/5798204/Interview-Coding-question-Most-Asked/';
+function practice(id: string, title: string, difficulty: Problem['difficulty'], topic: string, note: string, premium = false, source = github): Problem {
+  return { id, title, difficulty, topic, note, premium, source, sourceKind: 'Community list', platform: 'LeetCode', minutes: difficulty === 'Hard' ? 45 : difficulty === 'Easy' ? 20 : 30, url: `https://leetcode.com/problems/${id}/` };
+}
+
+// Google associations come from the linked community lists, not verified reports.
+export const googleProblems: Problem[] = [
+  practice('two-sum', 'Two Sum', 'Easy', 'Hashing', 'Store the complement needed for each value.', false, discussion),
+  practice('merge-sorted-array', 'Merge Sorted Array', 'Easy', 'Arrays', 'Write backward to preserve unread values.', false, discussion),
+  practice('valid-palindrome', 'Valid Palindrome', 'Easy', 'Two pointers', 'Compare meaningful characters from opposite ends.', false, discussion),
+  practice('move-zeroes', 'Move Zeroes', 'Easy', 'Two pointers', 'Keep nonzero values in their original order.', false, discussion),
+  practice('diameter-of-binary-tree', 'Diameter of Binary Tree', 'Easy', 'Trees', 'Combine branch heights to measure the longest path.', false, discussion),
+  practice('range-sum-of-bst', 'Range Sum of BST', 'Easy', 'Trees', 'Prune branches that cannot contain values in range.', false, discussion),
+  practice('reverse-linked-list', 'Reverse Linked List', 'Easy', 'Linked lists', 'Save the next node before reversing a link.', false, discussion),
+  practice('logger-rate-limiter', 'Logger Rate Limiter', 'Easy', 'Hashing', 'Remember when each message becomes eligible again.', true),
+  practice('decode-string', 'Decode String', 'Medium', 'Stacks', 'Save repeat counts and partial strings at each nesting level.'),
+  practice('evaluate-reverse-polish-notation', 'Evaluate Reverse Polish Notation', 'Medium', 'Stacks', 'Apply operators to the two most recent operands.'),
+  practice('random-pick-with-weight', 'Random Pick with Weight', 'Medium', 'Binary search', 'Map a random target into cumulative weight intervals.'),
+  practice('time-based-key-value-store', 'Time Based Key-Value Store', 'Medium', 'Binary search', 'Find the latest value no newer than the requested timestamp.'),
+  practice('snapshot-array', 'Snapshot Array', 'Medium', 'Data structure design', 'Store changes per index rather than copying every snapshot.'),
+  practice('stock-price-fluctuation', 'Stock Price Fluctuation', 'Medium', 'Data structure design', 'Handle corrections without losing the latest price or extrema.'),
+  practice('longest-string-chain', 'Longest String Chain', 'Medium', 'Dynamic programming', 'Build chains from shorter predecessor words.'),
+  practice('longest-arithmetic-subsequence-of-given-difference', 'Longest Arithmetic Subsequence of Given Difference', 'Medium', 'Dynamic programming', 'Extend the best subsequence ending at the needed previous value.'),
+  practice('count-square-submatrices-with-all-ones', 'Count Square Submatrices with All Ones', 'Medium', 'Dynamic programming', 'Use neighboring square sizes to count new squares.'),
+  practice('maximum-number-of-points-with-cost', 'Maximum Number of Points with Cost', 'Medium', 'Dynamic programming', 'Sweep each row from both directions to account for movement costs.'),
+  practice('find-leaves-of-binary-tree', 'Find Leaves of Binary Tree', 'Medium', 'Trees', 'Group nodes by their height above the leaves.', true),
+  practice('find-duplicate-subtrees', 'Find Duplicate Subtrees', 'Medium', 'Trees', 'Assign matching structures the same signature.'),
+  practice('step-by-step-directions-from-a-binary-tree-node-to-another', 'Step-By-Step Directions From a Binary Tree Node to Another', 'Medium', 'Trees', 'Combine paths through the common ancestor.'),
+  practice('employee-importance', 'Employee Importance', 'Medium', 'Graphs', 'Visit the reporting hierarchy using an ID lookup.'),
+  practice('sentence-screen-fitting', 'Sentence Screen Fitting', 'Medium', 'Strings', 'Track how many sentence characters each row can consume.', true),
+  practice('satisfiability-of-equality-equations', 'Satisfiability of Equality Equations', 'Medium', 'Union-find', 'Merge equal variables before checking inequalities.'),
+  practice('maximum-points-you-can-obtain-from-cards', 'Maximum Points You Can Obtain from Cards', 'Medium', 'Sliding window', 'Choose the smallest middle window to leave behind.'),
+  practice('number-of-matching-subsequences', 'Number of Matching Subsequences', 'Medium', 'Strings', 'Advance waiting words when their next character arrives.'),
+  practice('find-and-replace-in-string', 'Find And Replace in String', 'Medium', 'Strings', 'Validate replacements against the original positions.'),
+  practice('swap-adjacent-in-lr-string', 'Swap Adjacent in LR String', 'Medium', 'Two pointers', 'Check relative order and permitted movement directions.'),
+  practice('array-of-doubled-pairs', 'Array of Doubled Pairs', 'Medium', 'Greedy', 'Process values by magnitude when matching their doubles.'),
+  practice('find-original-array-from-doubled-array', 'Find Original Array From Doubled Array', 'Medium', 'Greedy', 'Consume values and their doubles from frequency counts.'),
+  practice('single-threaded-cpu', 'Single-Threaded CPU', 'Medium', 'Heaps', 'Choose the shortest available task as simulated time advances.'),
+  practice('minimize-maximum-pair-sum-in-array', 'Minimize Maximum Pair Sum in Array', 'Medium', 'Greedy', 'Pair the smallest and largest remaining values.'),
+  practice('shuffle-an-array', 'Shuffle an Array', 'Medium', 'Randomization', 'Give every remaining element equal selection probability.'),
+  practice('detect-squares', 'Detect Squares', 'Medium', 'Geometry', 'Count matching corners while preserving duplicate-point multiplicity.'),
+  practice('longest-absolute-file-path', 'Longest Absolute File Path', 'Medium', 'Parsing', 'Track path lengths at each indentation depth.'),
+  practice('rle-iterator', 'RLE Iterator', 'Medium', 'Data structure design', 'Consume run lengths without expanding the sequence.'),
+  practice('text-justification', 'Text Justification', 'Hard', 'Strings', 'Distribute spaces while treating the final line separately.'),
+  practice('basic-calculator-iii', 'Basic Calculator III', 'Hard', 'Parsing', 'Combine precedence rules with nested expression evaluation.', true),
+  practice('split-array-largest-sum', 'Split Array Largest Sum', 'Hard', 'Binary search', 'Search for a feasible upper bound on each partition sum.'),
+  practice('longest-increasing-path-in-a-matrix', 'Longest Increasing Path in a Matrix', 'Hard', 'Dynamic programming', 'Cache the best increasing path starting at each cell.'),
+  practice('robot-room-cleaner', 'Robot Room Cleaner', 'Hard', 'Backtracking', 'Restore position and orientation after exploring each direction.', true),
+  practice('guess-the-word', 'Guess the Word', 'Hard', 'Search', 'Choose guesses that reduce the remaining candidate set.'),
+  practice('trapping-rain-water-ii', 'Trapping Rain Water II', 'Hard', 'Heaps', 'Expand inward from the lowest boundary.'),
+  practice('maximum-number-of-visible-points', 'Maximum Number of Visible Points', 'Hard', 'Geometry', 'Use angular windows and account for points at your location.'),
+  practice('stream-of-characters', 'Stream of Characters', 'Hard', 'Tries', 'Match incoming suffixes against the dictionary.'),
+  practice('prefix-and-suffix-search', 'Prefix and Suffix Search', 'Hard', 'Tries', 'Index both word ends to answer combined queries.'),
+  practice('minimum-window-subsequence', 'Minimum Window Subsequence', 'Hard', 'Dynamic programming', 'Preserve character order while minimizing the containing window.', true),
+  practice('find-all-people-with-secret', 'Find All People With Secret', 'Hard', 'Graphs', 'Resolve simultaneous meetings before advancing time.'),
+  practice('student-attendance-record-ii', 'Student Attendance Record II', 'Hard', 'Dynamic programming', 'Track absences and the current run of late days.'),
+  practice('strange-printer', 'Strange Printer', 'Hard', 'Dynamic programming', 'Merge printing work across matching interval endpoints.'),
+];
